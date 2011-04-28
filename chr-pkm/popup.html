@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style>
+body {
+  min-width:357px;
+  overflow-x:hidden;
+}
+
+img {
+  margin:5px;
+  border:2px solid black;
+  vertical-align:middle;
+  width:75px;
+  height:75px;
+}
+h1 {
+  font-size:16px;
+}
+form div[data-role='fieldcontain'] {
+  width:80%; 
+  margin:5px 0;
+}
+form div[data-role='fieldcontain'] label {
+  display:block;
+  width:100%;
+}
+form div[data-role='fieldcontain'] input[type='text'] {
+  width:100%;
+}
+form div[data-role='fieldcontain'] textarea {
+  width:100%;
+}
+</style>
+<body>
+    <div id="pop_msg" class="align_center colo_aaa valign_center"></div>
+    <div class="submit_form align_center">
+        <h1>刚刚解决了一个问题？记录一下吧。</h1>
+        <form id="pkm_submit_form" action="#" method="POST">
+            <div data-role="fieldcontain">
+                <label for="question">问题:</label>
+                <textarea name="question" id="question" rows="5" cols="40"></textarea>
+            </div>
+            <div data-role="fieldcontain">
+                <label for="solution_page">这个页面解决了我的问题:</label>
+                <a href="#" target="_blank" id="solution_page_title">#</a>
+                <input type="hidden" name="solution_page" id="solution_page"/>
+            </div>
+            <div data-role="fieldcontain">
+                <label>答案(可选):</label>
+                <textarea name="answer" id="answer" rows="5" cols="40"></textarea>
+            </div>
+            <div data-role="fieldcontain">
+                <label>标签:</label>
+                <input type="text" name="tags" id="tags" size="20"/>
+            </div>
+            <div data-role="fieldcontain" class="align_right">
+                <input type="submit" id="submit" value="保存">
+            </div>
+        </form>
+    </div>
+    <div id="cmt_cnt"></div>
+    <script>
+      var bg = chrome.extension.getBackgroundPage();
+      var query_words = bg.last_query_words;
+      if (query_words.length > 0){
+        document.getElementById('question').value = query_words[query_words.length -1];
+      }
+      document.getElementById('question').focus();
+      var spt = document.getElementById('solution_page_title');
+      var sp = document.getElementById('solution_page');
+      chrome.tabs.getSelected(null, function(tab){
+        spt.href = tab.url;
+        spt.textContent = tab.title;
+        sp.value = tab.url;
+      });
+    </script>
+</body>

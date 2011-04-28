@@ -1,0 +1,22 @@
+{
+  "name": "PKM Tool",
+  "version": "1.0",
+  "description": "Save and share your knowledge.",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "popup": "popup.html"
+  },
+  "background_page" : "background.html",
+  "permissions": [
+    "tabs",
+    "http://pkm.labs.ftao.org/"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://www.google.com/*",
+                  "http://www.google.com.hk/*"
+                 ],
+      "js" : ["contentscript.js"]
+    }
+  ]
+}
