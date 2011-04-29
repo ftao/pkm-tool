@@ -9,7 +9,8 @@
   "background_page" : "background.html",
   "permissions": [
     "tabs",
-    "http://pkm.labs.ftao.org/"
+    "http://192.168.254.13/",
+    "http://pkm.labs.ftao.org/*"
   ],
   "content_scripts": [
     {
