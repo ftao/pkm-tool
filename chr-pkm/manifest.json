@@ -10,7 +10,7 @@
   "permissions": [
     "tabs",
     "http://192.168.254.13/",
-    "http://pkm.labs.ftao.org/*"
+    "http://k.ftao.org/"
   ],
   "content_scripts": [
     {
