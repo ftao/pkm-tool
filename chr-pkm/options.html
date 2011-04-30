@@ -1,0 +1,110 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>PKM Tool Options</title>
+<script type="text/javascript" src="jquery-1.5.2.min.js"></script>
+<script type="text/javascript">
+
+// Saves options to localStorage.
+function save_options() {
+  localStorage["api_token"] = $('#api_token').val()
+
+  // Update status to let user know options were saved.
+  $('#status').html("设置已保存");
+  setTimeout(function() {
+    $('#status').html("");
+  }, 750);
+}
+
+// Restores select box state to saved value from localStorage.
+function restore_options() {
+  if(localStorage["api_token"] != undefined){
+    $('#api_token').val(localStorage["api_token"]);
+  }
+}
+function create_account(){
+  var data = {
+    'username' : $('#username').val(),
+    'email' : $('#email').val()
+  };
+  var api_root = 'http://k.ftao.org';
+  var url = api_root + '/api/v1/user/';
+  var options = { 
+    'dataType' : 'json',
+    'type' : 'POST',
+    'data' : data,
+    'success' : function(data, textStatus, jqXHR){
+      if(data['api_token']){
+        localStorage['api_token'] = data['api_token'];
+        $('#status').html("用户创建成功");
+        setTimeout(function() {
+          $('#status').html("");
+        }, 750);
+        show_options_wrap();
+      }
+    },
+    'error' : function(jqXHR, textStatus, errorThrown){
+        $('#status').html("用户创建失败");
+        setTimeout(function() {
+          $('#status').html("");
+        }, 1500);
+    }
+  };
+  $.ajax(url, options);
+}
+</script>
+
+</head>
+<body>
+
+<div id="status"></div>
+
+<div id="options-wrap">
+  <h3>你的帐号: (<a id="link_no_account_yet" href="#no-account-yet">还没有帐号?</a>)</h3>
+  <div data-role="fieldcontain">
+    <label for="api_token">API Token</label><input type="text" name="api_token" size="50" value="" id="api_token" />
+  </div>
+  <div data-role="fieldcontain">
+    <button onclick="save_options()">保存</button>
+  </div>
+</div>
+
+<div id="new-account-wrap">
+  <h3>创建新帐号: (<a id="link_already_has_account" href="#already-has-account">已经有帐号了?</a>)</h3>
+  <div data-role="fieldcontain">
+    <label for="username">用户名:</label><input type="text" name="username" size="50" value="" id="username" />
+  </div>
+  <div data-role="fieldcontain">
+    <label for="email">Email:</label><input type="text" name="email" size="50" value="" id="email" />
+  </div>
+  <div data-role="fieldcontain">
+    <button onclick="create_account();">创建</button>
+  </div>
+</div>
+
+<script>
+function show_options_wrap(){
+  restore_options();
+  $('#options-wrap').show();
+  $('#new-account-wrap').hide();
+}
+
+function show_new_account_wrap(){
+  restore_options();
+  $('#options-wrap').hide();
+  $('#new-account-wrap').show();
+}
+$('#link_no_account_yet').click(show_new_account_wrap);
+$('#link_already_has_account').click(show_options_wrap);
+
+//if(localStorage['api_token'] != undefined){
+//  show_options_wrap();
+//}
+//else{
+show_options_wrap();
+//}
+</script>
+
+</body>
+</html>
+

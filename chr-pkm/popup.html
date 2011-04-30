@@ -32,6 +32,9 @@ form div[data-role='fieldcontain'] textarea {
 }
 </style>
 <body>
+    <div id="need_config">
+      <a href="options.html">帐号设置</a>
+    </div>
     <div id="pop_msg" class="align_center colo_aaa valign_center" style="display:none">
         <div>知识已成功保存。</div>
         <h2><a target="_blank">#</a></h2>
@@ -67,6 +70,7 @@ form div[data-role='fieldcontain'] textarea {
     <script type="text/javascript" src="jquery-1.5.2.min.js"></script>
     <script type="text/javascript" src="jquery.form.js"></script>
     <script>
+
       var bg = chrome.extension.getBackgroundPage();
       var query_words = bg.last_query_words;
       if (query_words.length > 0){
@@ -81,12 +85,14 @@ form div[data-role='fieldcontain'] textarea {
         spl.val(tab.url);
         spt.val(tab.title);
       });
-      $('#api_token').val('123456');
+      if(localStorage['api_token'] != undefined){
+        $('#api_token').val(localStorage['api_token']);
+      }
       var api_root = 'http://k.ftao.org';
       // prepare Options Object 
       var options = { 
           //target:     '#result_con', 
-          url:        api_root + '/api/v1/knowledge/', 
+          url: api_root + '/api/v1/knowledge/', 
           dataType : 'json',
           error : function(data){
             //
