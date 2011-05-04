@@ -14,9 +14,11 @@
                     "from the extension");
         if (request.action == "log_search_word"){
           console.log('engine:' + request.engine + ',query=' + request.query);
-          last_query_words.push(request.query);
+          last_query_words.unshift(request.query);
         }
-        else{
+        else if (request.action == "clear_search_word"){
+          console.log('clear search word')
+          last_query_words = [];
         }
     });
     </script>

@@ -2,15 +2,18 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>PKM Tool Options</title>
-<script type="text/javascript" src="jquery-1.5.2.min.js"></script>
+  <link href="css/main.css" rel="stylesheet" type="text/css"> 
+
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
 <script type="text/javascript">
 
 // Saves options to localStorage.
 function save_options() {
   localStorage["api_token"] = $('#api_token').val()
+  localStorage["username"] = $('#username').val()
 
   // Update status to let user know options were saved.
-  $('#status').html("设置已保存");
+  $('#status').html("Settings have been saved.");
   setTimeout(function() {
     $('#status').html("");
   }, 750);
@@ -21,10 +24,14 @@ function restore_options() {
   if(localStorage["api_token"] != undefined){
     $('#api_token').val(localStorage["api_token"]);
   }
+  if(localStorage["username"] != undefined){
+    $('#username').val(localStorage["username"]);
+  }
 }
 function create_account(){
   var data = {
-    'username' : $('#username').val(),
+    'username' : $('#new_username').val(),
+    'password' : $('#password').val(),
     'email' : $('#email').val()
   };
   var api_root = 'http://k.ftao.org';
@@ -36,7 +43,8 @@ function create_account(){
     'success' : function(data, textStatus, jqXHR){
       if(data['api_token']){
         localStorage['api_token'] = data['api_token'];
-        $('#status').html("用户创建成功");
+        localStorage['username'] = data['username'];
+        $('#status').html("User created.");
         setTimeout(function() {
           $('#status').html("");
         }, 750);
@@ -44,7 +52,7 @@ function create_account(){
       }
     },
     'error' : function(jqXHR, textStatus, errorThrown){
-        $('#status').html("用户创建失败");
+        $('#status').html("Fail to create user");
         setTimeout(function() {
           $('#status').html("");
         }, 1500);
@@ -60,25 +68,31 @@ function create_account(){
 <div id="status"></div>
 
 <div id="options-wrap">
-  <h3>你的帐号: (<a id="link_no_account_yet" href="#no-account-yet">还没有帐号?</a>)</h3>
+  <h3>Account: (<a id="link_no_account_yet" href="#no-account-yet">Don't have account?</a>)</h3>
+  <div data-role="fieldcontain">
+    <label for="username">Username</label><input type="text" name="username" size="50" value="" id="username" />
+  </div>
   <div data-role="fieldcontain">
     <label for="api_token">API Token</label><input type="text" name="api_token" size="50" value="" id="api_token" />
   </div>
   <div data-role="fieldcontain">
-    <button onclick="save_options()">保存</button>
+    <button onclick="save_options()">Save</button>
   </div>
 </div>
 
 <div id="new-account-wrap">
-  <h3>创建新帐号: (<a id="link_already_has_account" href="#already-has-account">已经有帐号了?</a>)</h3>
+  <h3>Create account: (<a id="link_already_has_account" href="#already-has-account">Have an account ?</a>)</h3>
   <div data-role="fieldcontain">
-    <label for="username">用户名:</label><input type="text" name="username" size="50" value="" id="username" />
+    <label for="new_username">Username:</label><input type="text" name="new_username" size="50" value="" id="new_username" />
   </div>
   <div data-role="fieldcontain">
     <label for="email">Email:</label><input type="text" name="email" size="50" value="" id="email" />
   </div>
   <div data-role="fieldcontain">
-    <button onclick="create_account();">创建</button>
+    <label for="password">Password:</label><input type="password" name="password" size="50" value="" id="password"/>
+  </div>
+  <div data-role="fieldcontain">
+    <button onclick="create_account();">Create</button>
   </div>
 </div>
 

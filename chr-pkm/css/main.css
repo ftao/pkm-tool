@@ -1,0 +1,29 @@
+body {
+  min-width:500px;
+  overflow-x:hidden;
+}
+
+h1 {
+  font-size:16px;
+}
+
+div[data-role='fieldcontain'] {
+  width:80%; 
+  margin:5px 0;
+}
+div[data-role='fieldcontain'] label {
+  display:block;
+  width:100%;
+}
+div[data-role='fieldcontain'] input[type='text'] {
+  width:100%;
+}
+div[data-role='fieldcontain'] input[type='password'] {
+  width:100%;
+}
+div[data-role='fieldcontain'] textarea {
+  width:100%;
+}
+
+
+
