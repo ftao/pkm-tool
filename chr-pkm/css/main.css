@@ -27,3 +27,8 @@ div[data-role='fieldcontain'] input[type='password'] {
 div[data-role='fieldcontain'] textarea {
   width:100%;
 }
+
+
+div#new_knowledge_wrap {
+    margin:10px 5px;
+}
