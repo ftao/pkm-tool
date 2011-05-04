@@ -1,97 +1,108 @@
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link href="css/main.css" rel="stylesheet" type="text/css"> 
+<link href="css/gh-buttons.css" rel="stylesheet" type="text/css"> 
 <body>
+
   <div id="need_config">
-    <a href="options.html">Account Settings</a>
+    You need to <a href="options.html" class="" target="_blank"> setup an account </a> before use this extension.
   </div>
-  <div id="pop_msg" class="align_center colo_aaa valign_center" style="display:none">
-    <div>The knowledge has been saved.</div>
-    <h2><a target="_blank">#</a></h2>
+
+  <div id="new_knowledge_wrap">
+    <div id="pop_msg" class="align_center colo_aaa valign_center" style="display:none">
+      <div>The knowledge has been saved.</div>
+      <h2><a target="_blank">#</a></h2>
+    </div>
+    <div id="pop_form" class="submit_form align_center">
+      <h1>Just solved a problem ? Write it down !</h1>
+      <form id="pkm_submit_form" action="#" method="POST">
+        <div data-role="fieldcontain">
+          <label for="question">Question:</label>
+          <textarea name="question" id="question" rows="5" cols="40"></textarea>
+        </div>
+        <div data-role="fieldcontain">
+          <label>Search Keywords:</label>
+          <textarea name="search_keywords" id="search_keywords" rows="4" cols="40"></textarea>
+        </div>
+        <div data-role="fieldcontain">
+          <label>Answer Summary:</label>
+          <textarea name="answer_summary" id="answer_summary" rows="5" cols="40"></textarea>
+        </div>
+        <div data-role="fieldcontain">
+          <label for="answer_page_title">Does this page help solving the problem? </label>
+          <input type="checkbox" name="include_answer_page" checked="checked"/>
+          <a href="#" target="_blank" id="answer_page_a">#</a>
+          <input type="hidden" name="answer_page_link" id="answer_page_link"/>
+          <input type="hidden" name="answer_page_title" id="answer_page_title"/>
+        </div>
+        <div data-role="fieldcontain">
+          <label>Tags:</label>
+          <input type="text" name="tags" id="tags" size="20"/>
+        </div>
+        <div data-role="fieldcontain" class="align_right">
+          <input type="hidden" id="username"  name="username"/>
+          <input type="hidden" id="token"  name="token"/>
+          <input type="submit" id="submit" value="Save" class="button big primary">
+        </div>
+      </form>
+    </div>
   </div>
-  <div id="pop_form" class="submit_form align_center">
-    <h1>Just solved a problem ?</h1>
-    <form id="pkm_submit_form" action="#" method="POST">
-      <div data-role="fieldcontain">
-        <label for="question">Question:</label>
-        <textarea name="question" id="question" rows="5" cols="40"></textarea>
-      </div>
-      <div data-role="fieldcontain">
-        <label>Search Keywords:</label>
-        <textarea name="search_keywords" id="search_keywords" rows="4" cols="40"></textarea>
-      </div>
-      <div data-role="fieldcontain">
-        <label>Answer Summary:</label>
-        <textarea name="answer_summary" id="answer_summary" rows="5" cols="40"></textarea>
-      </div>
-      <div data-role="fieldcontain">
-        <label for="answer_page_title">Does this page help solving the problem? </label>
-        <input type="checkbox" name="include_answer_page" checked="checked"/>
-        <a href="#" target="_blank" id="answer_page_a">#</a>
-        <input type="hidden" name="answer_page_link" id="answer_page_link"/>
-        <input type="hidden" name="answer_page_title" id="answer_page_title"/>
-      </div>
-      <div data-role="fieldcontain">
-        <label>Tags:</label>
-        <input type="text" name="tags" id="tags" size="20"/>
-      </div>
-      <div data-role="fieldcontain" class="align_right">
-        <input type="hidden" id="username"  name="username"/>
-        <input type="hidden" id="token"  name="token"/>
-        <input type="submit" id="submit" value="Save">
-      </div>
-    </form>
-  </div>
-  <div id="result_con"></div>
   <script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
   <script type="text/javascript" src="js/jquery.form.js"></script>
   <script>
+    if(localStorage['api_token'] == undefined || localStorage['username'] == undefined){
+      $('#need_config').show();
+      $('#new_knowledge_wrap').hide();
+    }
+    else{
+      $('#need_config').hide();
+      $('#new_knowledge_wrap').show();
+      var bg = chrome.extension.getBackgroundPage();
+      var query_words = bg.last_query_words;
+      if (query_words.length > 0){
 
-    var bg = chrome.extension.getBackgroundPage();
-    var query_words = bg.last_query_words;
-    if (query_words.length > 0){
-
-      $('#question').val(
-          query_words[0]
-      );
-      var ql = query_words.length;
-      if (ql > 4){
-        ql = 4
+        $('#question').val(
+            query_words[0]
+        );
+        var ql = query_words.length;
+        if (ql > 4){
+          ql = 4
+        }
+        $('#search_keywords').val(query_words.slice(0, ql).join('\n'))
       }
-      $('#search_keywords').val(query_words.slice(0, ql).join('\n'))
+      var spa = $('#answer_page_a');
+      var spl = $('#answer_page_link');
+      var spt = $('#answer_page_title');
+      chrome.tabs.getSelected(null, function(tab){
+        spa.attr('href', tab.url);
+        spa.text(tab.title);
+        spl.val(tab.url);
+        spt.val(tab.title);
+      });
+      if(localStorage['api_token'] != undefined){
+        $('#token').val(localStorage['api_token']);
+      }
+      if(localStorage['username'] != undefined){
+        $('#username').val(localStorage['username']);
+      }
+      var api_root = 'http://k.ftao.org';
+      // prepare Options Object 
+      var options = { 
+        //target:   '#result_con', 
+        url: api_root + '/api/v1/knowledge/', 
+        dataType : 'json',
+        error : function(data){
+        //
+        },
+        success: function(data) { 
+          $('#pop_form').hide();
+          $('#pop_msg').find('h2 a').attr('href', data['permlink']).text(data['question']);
+          $('#pop_msg').show();
+        } 
+      }; 
+      // pass options to ajaxForm 
+      $('#pkm_submit_form').ajaxForm(options);
+      $('#question')[0].focus();
     }
-    var spa = $('#answer_page_a');
-    var spl = $('#answer_page_link');
-    var spt = $('#answer_page_title');
-    chrome.tabs.getSelected(null, function(tab){
-      spa.attr('href', tab.url);
-      spa.text(tab.title);
-      spl.val(tab.url);
-      spt.val(tab.title);
-    });
-    if(localStorage['api_token'] != undefined){
-      $('#token').val(localStorage['api_token']);
-    }
-    if(localStorage['username'] != undefined){
-      $('#username').val(localStorage['username']);
-    }
-    var api_root = 'http://k.ftao.org';
-    // prepare Options Object 
-    var options = { 
-      //target:   '#result_con', 
-      url: api_root + '/api/v1/knowledge/', 
-      dataType : 'json',
-      error : function(data){
-      //
-      },
-      success: function(data) { 
-        $('#pop_form').hide();
-        $('#pop_msg').find('h2 a').attr('href', data['permlink']).text(data['question']);
-        $('#pop_msg').show();
-      } 
-    }; 
-    // pass options to ajaxForm 
-    $('#pkm_submit_form').ajaxForm(options);
-    $('#question')[0].focus();
   </script>
 </body>
