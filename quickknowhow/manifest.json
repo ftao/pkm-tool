@@ -22,5 +22,6 @@
                  ],
       "js" : ["contentscript.js"]
     }
-  ]
+  ],
+  "update_url": "http://knowhowspot.com/release/quickknowhow/update.xml"
 }
