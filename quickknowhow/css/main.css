@@ -31,4 +31,20 @@ div[data-role='fieldcontain'] textarea {
 
 div#new_knowledge_wrap {
     margin:10px 5px;
+    display:none;
+}
+
+div#need_config {
+    margin:20px;
+    font-size:16px;
+    display:none;
+}
+
+span.web-service-name {
+    color:#1A7AE7;
+}
+
+.options-page h1 {
+    font-size:18px;
+    font-weight:bold;
 }

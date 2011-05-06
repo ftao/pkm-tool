@@ -1,17 +1,17 @@
 {
-  "name": "PKM Tool",
+  "name": "Quick Know-How",
   "version": "0.1",
   "description": "Save and share your knowledge.",
   "browser_action": {
     "default_icon": "icon.png",
     "popup": "popup.html"
   },
+  "icons": {"128": "icon128.png", "48" : "icon48.png", "32" : "icon32.png"},
   "options_page": "options.html",
   "background_page" : "background.html",
   "permissions": [
     "tabs",
-    "http://192.168.254.13/",
-    "http://k.ftao.org/"
+    "http://knowhowspot.com/"
   ],
   "content_scripts": [
     {

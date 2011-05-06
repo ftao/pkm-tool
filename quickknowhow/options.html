@@ -1,7 +1,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>PKM Tool Options</title>
+  <title>Quick Know-How</title>
   <link href="css/screen.css" rel="stylesheet" type="text/css"> 
   <link href="css/main.css" rel="stylesheet" type="text/css"> 
   <link href="css/gh-buttons.css" rel="stylesheet" type="text/css"> 
@@ -11,10 +11,11 @@
 </head>
 <body>
 
-<div id="wrap">
+<div id="wrap" class="options-page">
+
+  <h1>Quick Know-How Options</h1>
 
   <div id="status"></div>
-
   <div class="button-group">
       <a href="#" id="btn-account" class="button primary">Account</a>
       <a href="#" id="btn-about" class="button">About</a>
@@ -29,9 +30,9 @@
 
     <div id="change-account-wrap">
 
-      <div class="column span-8 last">
+      <div class="column span-9 last">
         <form id="frm-login">
-        <h3>Login with old account</h3>
+        <h3>Login with <span class="web-service-name">knowhowspot.com</span> account</h3>
         <div data-role="fieldcontain">
           <label for="login_username">Username:</label><input type="text" name="login_username" size="50" value="" id="login_username" />
         </div>
@@ -44,9 +45,9 @@
         </form>
       </div>
 
-      <div class="column span-8">
+      <div class="column span-9">
         <form id="frm-create-account">
-        <h3>Create a new account</h3>
+        <h3>Create a <span class="web-service-name">knowhowspot.com</span> account</h3>
         <div data-role="fieldcontain">
           <label for="new_username">Username:</label><input type="text" name="new_username" size="50" value="" id="new_username" />
         </div>
@@ -71,6 +72,9 @@
     <p>
       This extension is a simple PKM (Person Knowledge Management) Tool.  <br/>
       It help you save the knowledge you've learned, and share it with the world. 
+    </p>
+    <p>
+      Your knowledge will be saved on <a href="http://knowhowspot.com/" target="_blank">knowhowspot.com</a>.
     </p>
   </div>
 </div>
@@ -99,6 +103,9 @@ function create_account(){
     'dataType' : 'json',
     'type' : 'POST',
     'data' : data,
+    'beforeSend': function(xhr) {
+      show_msg('info', 'loading ....');
+    },
     'success' : function(data, textStatus, jqXHR){
       if(data['api_token']){
         localStorage['api_token'] = data['api_token'];
@@ -126,6 +133,7 @@ function login(){
     'type' : 'GET',
     'beforeSend': function(xhr) {
       xhr.setRequestHeader("Authorization", "Basic " + $.base64Encode(data['username'] + ":" + data['password']));
+      show_msg('info', 'loading ....');
     },
     'success' : function(data, textStatus, jqXHR){
       if(data['token']){

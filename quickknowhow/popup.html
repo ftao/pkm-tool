@@ -11,7 +11,8 @@
   <div id="status"></div>
 
   <div id="need_config">
-    You need to <a href="options.html" class="" target="_blank"> setup an account </a> before use this extension.
+      You need to <a href="options.html" class="" target="_blank">setup an account </a> to use 
+      <span id="extension-name">Quick Know-How</span> .
   </div>
 
   <div id="new_knowledge_wrap">
@@ -110,6 +111,7 @@
           $('#pop_form').hide();
           $('#pop_msg').find('h2 a').attr('href', data['permlink']).text(data['question']);
           $('#pop_msg').show();
+          chrome.extension.sendRequest({'action' : 'clear_search_word'});
         } 
       }; 
       // pass options to ajaxForm 
