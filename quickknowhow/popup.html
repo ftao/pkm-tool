@@ -49,7 +49,8 @@
         <div data-role="fieldcontain" class="align_right">
           <input type="hidden" id="username"  name="username"/>
           <input type="hidden" id="token"  name="token"/>
-          <input type="submit" id="submit" value="Save" class="button big primary">
+          <input type="submit" id="submit" value="Save & Publish" class="button big primary">
+          <input type="button" id="discard_draft" value="Discard Draft" class="button">
         </div>
       </form>
     </div>
@@ -58,6 +59,70 @@
   <script type="text/javascript" src="js/jquery.form.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
   <script>
+    function update_fields(kdata){
+      $('#question').val(kdata['question']);
+      $('#search_keywords').val(kdata['search_keywords']);
+      $('#answer_summary').val(kdata['answer_summary']);
+
+      var spa = $('#answer_page_a');
+      var spl = $('#answer_page_link');
+      var spt = $('#answer_page_title');
+      if(kdata['answer_page_link']){
+        spa.attr('href', kdata['answer_page_link']);
+        spa.text(kdata['answer_page_title']);
+        $('#include_answer_page').attr('checked', true);
+      }
+      else {
+        $('#include_answer_page').removeAttr('checked');
+        spa.parents('div[data-role=fieldcontain]').hide();
+      }
+      spl.val(kdata['answer_page_link']);
+      spt.val(kdata['answer_page_title']);
+      $('#tags').val(kdata['tags']);
+    }
+
+    function save_draft(){
+      var kdata = {};
+      kdata['question'] = $('#question').val();
+      kdata['search_keywords'] = $('#search_keywords').val();
+
+      kdata['include_answer_page']  = $('#include_answer_page').is(':checked');
+      kdata['answer_page_link'] = $('#answer_page_link').val();
+      kdata['answer_page_title'] = $('#answer_page_title').val();
+      kdata['answer_summary'] = $('#answer_summary').val();
+      kdata['tags'] = $('#tags').val();
+      localStorage['last_kdata_draft'] = JSON.stringify(kdata);
+    }
+    function preare_data(){
+      var kdata = {
+        'question' : '',
+        'search_keywords' : '',
+        'include_answer_page' : true,
+        'answer_summary' : '',
+        'answer_page_title' : '',
+        'answer_page_link' : '',
+        'tags' : ''
+      };
+      //preare fields data
+      var query_words = bg.last_query_words;
+      if (query_words.length > 0){
+        var ql = query_words.length;
+        if (ql > 4){
+          ql = 4
+        }
+        kdata['search_keywords'] = query_words.slice(0, ql).join('\n');
+        kdata['question'] = query_words[0];
+      }
+
+      chrome.tabs.getSelected(null, function(tab){
+        if(tab.url.indexOf('http://') == 0 || tab.url.indexOf('https://') == 0){
+          kdata['answer_page_link'] = tab.url;
+          kdata['answer_page_title'] = tab.title;
+        }
+        update_fields(kdata);
+      });
+    }
+
     if(localStorage['api_token'] == undefined || localStorage['username'] == undefined){
       $('#need_config').show();
       $('#new_knowledge_wrap').hide();
@@ -66,39 +131,52 @@
       $('#need_config').hide();
       $('#new_knowledge_wrap').show();
       var bg = chrome.extension.getBackgroundPage();
-      var query_words = bg.last_query_words;
-      if (query_words.length > 0){
+      if (localStorage['last_kdata_draft'] != undefined){
+        try{
+          kdata = JSON.parse(localStorage['last_kdata_draft']);
+          update_fields(kdata); 
+        }
+        catch(e){   
+          console.log(e);
+          preare_data();
+        }
+      }
+      else{
+        preare_data();
+      }
 
-        $('#question').val(
-            query_words[0]
-        );
-        var ql = query_words.length;
-        if (ql > 4){
-          ql = 4
-        }
-        $('#search_keywords').val(query_words.slice(0, ql).join('\n'))
+      $('#token').val(localStorage['api_token']);
+      $('#username').val(localStorage['username']);
+
+      // prepare Options Object 
+      var options = { 
+        url: kns.api_url('knowledge/'), 
+        dataType : 'json',
+        error : function(data){
+          show_msg('error', 'Fail to save the knowledge', 3000);
+        },
+        success: function(data) { 
+          $('#pop_form').hide();
+          $('#pop_msg').find('h2 a').attr('href', data['permlink']).text(data['question']);
+          $('#pop_msg').show();
+          chrome.extension.sendRequest({'action' : 'clear_search_word'});
+        } 
       }
-      var spa = $('#answer_page_a');
-      var spl = $('#answer_page_link');
-      var spt = $('#answer_page_title');
-      chrome.tabs.getSelected(null, function(tab){
-        if(tab.url.indexOf('http://') == 0 || tab.url.indexOf('https://') == 0){
-          spa.attr('href', tab.url);
-          spa.text(tab.title);
-          spl.val(tab.url);
-          spt.val(tab.title);
-        }
-        else{
-          $('#include_answer_page').removeAttr('checked');
-          spa.parents('div[data-role=fieldcontain]').hide();
-        }
+
+      $('#pkm_submit_form input,#pkm_submit_form textarea').change(function(e){
+        save_draft();
       });
-      if(localStorage['api_token'] != undefined){
-        $('#token').val(localStorage['api_token']);
-      }
-      if(localStorage['username'] != undefined){
-        $('#username').val(localStorage['username']);
-      }
+      $('#pkm_submit_form input,#pkm_submit_form textarea').blur(function(e){
+        save_draft();
+      });
+      $('#discard_draft').click(function(e){
+          // remove popup by selecting the tab
+          chrome.tabs.getSelected(null, function(tab) {
+              chrome.tabs.update(tab.id, { selected: true } )
+              localStorage['last_kdata_draft'] = null;
+          });
+      });
+
       // prepare Options Object 
       var options = { 
         //target:   '#result_con', 
@@ -112,6 +190,7 @@
           $('#pop_msg').find('h2 a').attr('href', data['permlink']).text(data['question']);
           $('#pop_msg').show();
           chrome.extension.sendRequest({'action' : 'clear_search_word'});
+          localStorage['last_kdata_draft'] = null;
         } 
       }; 
       // pass options to ajaxForm 
